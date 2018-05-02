@@ -23,32 +23,55 @@ data "aws_subnet" "minikube_subnet" {
   id = "${var.aws_subnet_id}"
 }
 
+data "aws_vpc" "minikube_vpc" {
+  id = "${data.aws_subnet.minikube_subnet.vpc_id}"
+}
+
 resource "aws_security_group" "minikube" {
   vpc_id = "${data.aws_subnet.minikube_subnet.vpc_id}"
   name   = "${var.cluster_name}"
 
   tags = "${merge(map("Name", var.cluster_name, format("kubernetes.io/cluster/%v", var.cluster_name), "owned"), var.tags)}"
+}
 
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_security_group_rule" "minikube_internal_traffic" {
+  description       = "Allow all internal traffic from same VPC"
+  security_group_id = "${aws_security_group.minikube.id}"
+  type              = "ingress"
+  from_port         = 0
+  to_port           = 65535
+  protocol          = "-1"
+  cidr_blocks       = ["${data.aws_vpc.minikube_vpc.cidr_block}"]
+}
 
-  ingress {
-    from_port   = 6443
-    to_port     = 6443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_security_group_rule" "minikube_ssh" {
+  description       = "Allow SSH access"
+  security_group_id = "${aws_security_group.minikube.id}"
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_security_group_rule" "minikube_kubernetes_api" {
+  description       = "Allow access via Kubernetes API"
+  security_group_id = "${aws_security_group.minikube.id}"
+  type              = "ingress"
+  from_port         = 6443
+  to_port           = 6443
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "minikube_egress" {
+  description       = "Allow all egress traffic"
+  security_group_id = "${aws_security_group.minikube.id}"
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
 }
 
 #####
