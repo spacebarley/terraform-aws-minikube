@@ -1,13 +1,4 @@
 #####
-# Setup AWS provider
-# (Retrieve AWS credentials from env variables AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY)
-#####
-
-provider "aws" {
-  region = "${var.aws_region}"
-}
-
-#####
 # Generate kubeadm token
 #####
 
@@ -202,14 +193,10 @@ resource "aws_eip" "minikube" {
 
 resource "aws_instance" "minikube" {
   # Instance type - any of the c4 should do for now
-  instance_type = "${var.aws_instance_type}"
-
-  ami = "${length(var.ami_image_id) > 0 ? var.ami_image_id : data.aws_ami.centos7.id}"
-
-  key_name = "${aws_key_pair.minikube_keypair.key_name}"
-
-  subnet_id = "${var.aws_subnet_id}"
-
+  instance_type               = "${var.aws_instance_type}"
+  ami                         = "${length(var.ami_image_id) > 0 ? var.ami_image_id : data.aws_ami.centos7.id}"
+  key_name                    = "${aws_key_pair.minikube_keypair.key_name}"
+  subnet_id                   = "${var.aws_subnet_id}"
   associate_public_ip_address = false
 
   vpc_security_group_ids = [
