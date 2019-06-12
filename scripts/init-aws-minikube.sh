@@ -11,7 +11,7 @@ export DNS_NAME=${dns_name}
 export IP_ADDRESS=${ip_address}
 export CLUSTER_NAME=${cluster_name}
 export ADDONS="${addons}"
-export KUBERNETES_VERSION="1.13.2"
+export KUBERNETES_VERSION="1.14.3"
 
 # Set this only after setting the defaults
 set -o nounset
@@ -37,11 +37,10 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
         https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 EOF
 
-# setenforce returns non zero if already SE Linux is already disabled
-is_enforced=$(getenforce)
-if [[ $is_enforced != "Disabled" ]]; then
-  setenforce 0
-fi
+# Disable SELinux
+setenforce 0
+sed -i 's/^SELINUX=.*/SELINUX=disabled/' /etc/sysconfig/selinux
+sed -i 's/^SELINUX=.*/SELINUX=disabled/' /etc/selinux/config
 
 yum install -y kubelet-$KUBERNETES_VERSION kubeadm-$KUBERNETES_VERSION kubernetes-cni
 
