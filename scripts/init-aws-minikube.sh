@@ -12,6 +12,7 @@ export IP_ADDRESS=${ip_address}
 export CLUSTER_NAME=${cluster_name}
 export ADDONS="${addons}"
 export KUBERNETES_VERSION="1.14.3"
+export CERT_ARN=${cert_arn}
 
 # Set this only after setting the defaults
 set -o nounset

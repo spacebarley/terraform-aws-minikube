@@ -39,3 +39,8 @@ variable "ami_image_id" {
   description = "ID of the AMI image which should be used. If empty, the latest CentOS 7 image will be used. See README.md for AMI image requirements."
   default     = ""
 }
+
+variable "certificate_arn" {
+  description = "ARN of certificate for nginx ingress controller"
+  default     = ""
+}

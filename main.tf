@@ -126,6 +126,7 @@ data "template_file" "init_minikube" {
     ip_address    = "${aws_eip.minikube.public_ip}"
     cluster_name  = "${var.cluster_name}"
     addons        = "${join(" ", var.addons)}"
+    cert_arn      = "${var.certificate_arn}"
   }
 }
 
