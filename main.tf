@@ -4,6 +4,7 @@
 
 module "kubeadm-token" {
   source = "scholzj/kubeadm-token/random"
+  version = "1.0.0"
 }
 
 #####
